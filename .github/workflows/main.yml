@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 1. Check out the repository so we can access the source files.
+      # 1. Checkout the repository to access the source files.
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -38,9 +38,15 @@ jobs:
           ./configure --with-compat --add-dynamic-module=$HOME/nginx-brutal
           make modules
 
-      # 6. Upload the compiled module as an artifact using v4.
-      - name: Upload compiled module artifact
+      # 6. Archive the entire compile directory.
+      - name: Archive compiled directory
+        run: |
+          cd $HOME
+          tar czf nginx-compiled.tar.gz nginx-1.18.0
+
+      # 7. Upload the archive as an artifact.
+      - name: Upload compiled directory artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ngx_http_tcp_brutal_module.so
-          path: $HOME/nginx-1.18.0/objs/ngx_http_tcp_brutal_module.so
+          name: nginx-compiled.tar.gz
+          path: $HOME/nginx-compiled.tar.gz
