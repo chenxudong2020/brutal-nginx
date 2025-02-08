@@ -1,50 +1,51 @@
-name: Build NGINX TCP Brutal Module
+name: Build NGINX Brutal Module
 
+# This workflow is triggered manually via the "Run workflow" button.
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: debian-latest
-
+    runs-on: ubuntu-latest
     steps:
-      # Check out the repository (assumes that the module source files, e.g. `ngx_http_tcp_brutal_module.c` and a config file, are in the repo root)
+      # 1. Check out the repository so we can access the source files.
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Install required packages
+      # 2. Install required packages
       - name: Install build dependencies
         run: |
-          sudo apt update
-          sudo apt install -y build-essential nginx unzip git wget curl libpcre3-dev zlib1g-dev tar
+          sudo apt-get update
+          sudo apt-get install -y build-essential wget libpcre3-dev zlib1g-dev tar
 
-      # Prepare the module source directory (you can adjust file names/paths as needed)
+      # 3. Prepare the module source directory
       - name: Prepare module source
         run: |
-          mkdir -p ~/nginx-brutal
-          cp ./config ~/nginx-brutal/        # if you have a config file needed by the module
-          cp ./ngx_http_tcp_brutal_module.c ~/nginx-brutal/
+          # Create a directory for the module (similar to ~/nginx-brutal in the instructions)
+          mkdir -p $HOME/nginx-brutal
+          # Copy the provided config file and module source file from the repo
+          cp "$GITHUB_WORKSPACE/config" "$HOME/nginx-brutal/"
+          cp "$GITHUB_WORKSPACE/ngx_http_tcp_brutal_module.c" "$HOME/nginx-brutal/"
 
-      # Download and extract NGINX source code
-      - name: Download NGINX source
+      # 4. Download and extract the NGINX source code
+      - name: Download and extract NGINX source code
         run: |
-          wget http://nginx.org/download/nginx-1.18.0.tar.gz -O nginx.tar.gz
-          tar -xzf nginx.tar.gz
+          cd $HOME
+          wget http://nginx.org/download/nginx-1.18.0.tar.gz
+          tar -xf nginx-1.18.0.tar.gz
 
-      # Configure and compile the dynamic module
-      - name: Build the module
+      # 5. Configure and compile the module
+      - name: Build the NGINX module
         run: |
-          cd nginx-1.18.0
-          ./configure --with-compat --add-dynamic-module=../nginx-brutal
+          cd $HOME/nginx-1.18.0
+          # Configure with the --with-compat flag and add our module directory
+          ./configure --with-compat --add-dynamic-module=$HOME/nginx-brutal
+          # Build only the modules (this will produce objs/ngx_http_tcp_brutal_module.so)
           make modules
 
-      # Upload the compiled module as an artifact for download
-      - name: Upload compiled module
+      # 6. Upload the compiled module as an artifact for download
+      - name: Upload compiled module artifact
         uses: actions/upload-artifact@v3
         with:
           name: ngx_http_tcp_brutal_module.so
-          path: nginx-1.18.0/objs/ngx_http_tcp_brutal_module.so
+          path: $HOME/nginx-1.18.0/objs/ngx_http_tcp_brutal_module.so
