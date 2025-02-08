@@ -1,0 +1,50 @@
+name: Build NGINX TCP Brutal Module
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: debian-latest
+
+    steps:
+      # Check out the repository (assumes that the module source files, e.g. `ngx_http_tcp_brutal_module.c` and a config file, are in the repo root)
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Install required packages
+      - name: Install build dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential nginx unzip git wget curl libpcre3-dev zlib1g-dev tar
+
+      # Prepare the module source directory (you can adjust file names/paths as needed)
+      - name: Prepare module source
+        run: |
+          mkdir -p ~/nginx-brutal
+          cp ./config ~/nginx-brutal/        # if you have a config file needed by the module
+          cp ./ngx_http_tcp_brutal_module.c ~/nginx-brutal/
+
+      # Download and extract NGINX source code
+      - name: Download NGINX source
+        run: |
+          wget http://nginx.org/download/nginx-1.18.0.tar.gz -O nginx.tar.gz
+          tar -xzf nginx.tar.gz
+
+      # Configure and compile the dynamic module
+      - name: Build the module
+        run: |
+          cd nginx-1.18.0
+          ./configure --with-compat --add-dynamic-module=../nginx-brutal
+          make modules
+
+      # Upload the compiled module as an artifact for download
+      - name: Upload compiled module
+        uses: actions/upload-artifact@v3
+        with:
+          name: ngx_http_tcp_brutal_module.so
+          path: nginx-1.18.0/objs/ngx_http_tcp_brutal_module.so
