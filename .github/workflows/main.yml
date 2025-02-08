@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 1. Checkout the repository to access the source files.
+      # 1. Checkout repository to access the source files.
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -15,7 +15,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential wget libpcre3-dev zlib1g-dev tar
+          sudo apt-get install -y build-essential wget libpcre3-dev zlib1g-dev
 
       # 3. Prepare the module source directory.
       - name: Prepare module source
@@ -38,13 +38,21 @@ jobs:
           ./configure --with-compat --add-dynamic-module=$HOME/nginx-brutal
           make modules
 
-      # 6. Archive the entire compile directory.
+      # 6. Archive the entire NGINX compile directory.
       - name: Archive compiled directory
         run: |
           cd $HOME
           tar czf nginx-compiled.tar.gz nginx-1.18.0
 
-      # 7. Upload the archive as an artifact.
+      # 7. Debug: Print the directory structure of $HOME for verification.
+      - name: Debug $HOME structure
+        run: |
+          echo "Listing contents of \$HOME:"
+          ls -la $HOME
+          echo "Recursively listing contents of \$HOME:"
+          ls -laR $HOME
+
+      # 8. Upload the compiled archive as an artifact.
       - name: Upload compiled directory artifact
         uses: actions/upload-artifact@v4
         with:
