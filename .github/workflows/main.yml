@@ -28,13 +28,13 @@ jobs:
       - name: Download and extract NGINX source code
         run: |
           cd $HOME
-          wget http://nginx.org/download/nginx-1.18.0.tar.gz
-          tar -xf nginx-1.18.0.tar.gz
+          wget http://nginx.org/download/nginx-1.27.4.tar.gz
+          tar -xf nginx-1.27.4.tar.gz
 
       # 5. Configure and compile the module.
       - name: Build the NGINX module
         run: |
-          cd $HOME/nginx-1.18.0
+          cd $HOME/nginx-1.27.4
           ./configure --with-compat --add-dynamic-module=$HOME/nginx-brutal
           make modules
 
@@ -42,7 +42,7 @@ jobs:
       - name: Archive compiled directory
         run: |
           cd $HOME
-          tar czf nginx-compiled.tar.gz nginx-1.18.0
+          tar czf nginx-compiled.tar.gz nginx-1.27.4
 
       # 7. Debug: Print the directory structure of $HOME for verification.
       - name: Debug $HOME structure
