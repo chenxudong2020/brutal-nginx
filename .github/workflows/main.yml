@@ -57,4 +57,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nginx-compiled.tar.gz
-          path: $HOME/nginx-compiled.tar.gz
+          path: /home/runner/nginx-compiled.tar.gz
