@@ -35,8 +35,8 @@ jobs:
       - name: Build the NGINX module
         run: |
           cd $HOME/nginx-1.27.4
-          ./configure --with-compat --add-dynamic-module=$HOME/nginx-brutal
-          make modules
+          ./configure --with-compat --add-dynamic-module=$HOME/nginx-brutal --prefix=$HOME/nginx-1.27.4
+          make modules && make
 
       # 6. Archive the entire NGINX compile directory.
       - name: Archive compiled directory
