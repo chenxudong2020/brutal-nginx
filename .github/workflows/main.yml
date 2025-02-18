@@ -34,8 +34,8 @@ jobs:
       # 5. Configure and compile the module.
       - name: Build the NGINX module
         run: |
-          cd $HOME/nginx-1.27.4
-          ./configure --with-compat --add-dynamic-module=$HOME/nginx-brutal 
+          mv $HOME/nginx-1.27.4 $HOME/nginx && cp -rf $HOME/nginx /usr/share
+          ./configure --with-compat --add-dynamic-module=/usr/share/nginx-brutal
           --prefix=/usr/share/nginx \
           --sbin-path=/usr/sbin/nginx \
           --conf-path=/etc/nginx/nginx.conf \
